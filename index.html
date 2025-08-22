@@ -7,7 +7,6 @@
   <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
   <script src="https://cdn.rawgit.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
 </head>
-
 <body style="margin:0; overflow:hidden;">
 
   <a-scene embedded arjs="trackingMethod: best; sourceType: webcam; debugUIEnabled: false;">
@@ -35,18 +34,32 @@
     <a-entity camera></a-entity>
   </a-scene>
 
-  <!-- Play/Pause Video when Marker is Detected -->
+  <!-- Robust Video Play Script -->
   <script>
     const marker = document.querySelector("a-marker");
     const video = document.querySelector("#myVideo");
 
+    // Try to play video immediately in case marker is already visible
+    video.play().catch(err => console.log("Initial play error:", err));
+
+    // Marker detected
     marker.addEventListener("markerFound", () => {
-      video.play().catch(err => console.log("Video play error:", err));
+      console.log("Marker found!");
+      video.play().catch(err => console.log("Marker play error:", err));
     });
 
-    marker.addEventListener("markerLost", () => video.pause());
+    // Marker lost
+    marker.addEventListener("markerLost", () => {
+      console.log("Marker lost!");
+      video.pause();
+    });
+
+    // Fallback: user interaction to start video if autoplay blocked
+    document.body.addEventListener("click", () => {
+      console.log("User clicked - trying to play video");
+      video.play().catch(err => console.log("User click play error:", err));
+    });
   </script>
 
 </body>
 </html>
-
